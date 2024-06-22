@@ -41,7 +41,31 @@ sys_upgrade() {
 
 }
 
-conf_environment() {
+install_packages() {
+	PACKAGES="neovim htop macchanger"
+
+	echo -e "${YELLOW}Initializing...${RC}"
+
+	sudo apt install nala
+
+	if [[ $? -eq 0 ]]; then
+		echo -e "${GREEN}Nala installed.${RC}"
+	else
+		echo -e "${RED}Failed to install Nala.${RC}"
+		exit 1
+	fi
+
+	sudo nala install $PACKAGES
+
+	if [[ $? -eq 0 ]]; then
+		echo -e "${GREEN}PHASE 2 Complete."
+	else
+		echo -e "${RED}Failed to install packages."
+		exit 1
+	fi
+}
+
+conf_environmet() {
 	if [[ ! -d "$LINUXSETUPDIR" ]]; then
 		echo -e "${YELLOW}Creating Linux Setup Directory: $LINUXSETUPDIR${RC}"
 		mkdir -p "$LINUXSETUPDIR"
@@ -76,10 +100,16 @@ while true; do
 	case $choice in
 		1)
 			sys_upgrade
+			;;
+		2)
+			install_packages
+			;;
+		4)
+			echo -e "${GREEN}Exiting script. Goodbye!"
 			break
 			;;
 		*)
-			echo -e "${RED}Invalid choice. Please enter a number between 1 and 3.${RC}"
+			echo -e "${RED}Invalid choice. Please enter a number between 1 and 4.${RC}"
 			;;
 	esac
 
