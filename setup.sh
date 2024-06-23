@@ -41,8 +41,8 @@ sys_upgrade() {
 
 }
 
-install_packages() {
-	PACKAGES="neovim htop macchanger"
+install_dependencies() {
+	DEPENDENCIES="neovim htop curl macchanger"
 
 	echo -e "${YELLOW}Initializing...${RC}"
 
@@ -55,7 +55,7 @@ install_packages() {
 		exit 1
 	fi
 
-	sudo nala install $PACKAGES
+	sudo nala install $DEPENDENCIES
 
 	if [[ $? -eq 0 ]]; then
 		echo -e "${GREEN}PHASE 2 Complete."
@@ -63,6 +63,22 @@ install_packages() {
 		echo -e "${RED}Failed to install packages."
 		exit 1
 	fi
+}
+
+install_brave() {
+	echo -e "${YELLOW}Installing Brave Browser...${RC}"
+
+	sudo curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
+
+	echo "deb [arch=amd64 signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg] https://brave-browser-apt-release.s3.brave.com/ stable main"|sudo tee /etc/apt/sources.list.d/brave-browser-release.list
+
+	sudo nala update && sudo nala install brave-browser
+}
+
+install_rust() {
+	echo -e "${YELLOW}Installing Rust...${RC}"
+
+	curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 }
 
 conf_environmet() {
@@ -102,7 +118,9 @@ while true; do
 			sys_upgrade
 			;;
 		2)
-			install_packages
+			install_dependencies
+			install_brave
+			install_rust
 			;;
 		4)
 			echo -e "${GREEN}Exiting script. Goodbye!"
